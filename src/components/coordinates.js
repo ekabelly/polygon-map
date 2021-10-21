@@ -1,10 +1,18 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 function Coordinates(props) {
     const [lat, setLat] = useState('');
     const [lng, setLng] = useState('');
 
-    function emitCoordinates(){
+    useEffect(() => {
+        if (props.clickLocation) {
+            const {lng, lat} = props.clickLocation;
+            setLng(lng);
+            setLat(lat);
+        }
+    }, [props.clickLocation])
+
+    function emitCoordinates() {
         props.emitCoordinates({lat, lng});
         setLat('');
         setLng('');

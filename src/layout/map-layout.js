@@ -9,10 +9,10 @@ function MapLayout() {
 
     function clickLocationRenderer() {
         if (clickLocation) {
-            return (<div className='flex'>
+            return (<div className='flex space-between'>
                 you clicked on:
-                <div>lng: {clickLocation.longitude}</div>
-                <div>lat: {clickLocation.latitude}</div>
+                <div>lng: {clickLocation.lng}</div>
+                <div>lat: {clickLocation.lat}</div>
             </div>)
         }
         return '';
@@ -22,10 +22,12 @@ function MapLayout() {
         <div className="map-layout">
             <header>
                 <h1>Polygon Map!</h1>
-                {clickLocationRenderer()}
+                <div className='clicked-on'>
+                    {clickLocationRenderer()}
+                </div>
             </header>
             <div className="content flex">
-                <Coordinates emitCoordinates={setCoordinates}></Coordinates>
+                <Coordinates emitCoordinates={setCoordinates} clickLocation={clickLocation}></Coordinates>
                 <Map onMapClick={setClickLocation} coordinates={coordinates}></Map>
             </div>
         </div>
