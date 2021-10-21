@@ -1,4 +1,4 @@
-import './App.css';
+import './index.scss';
 import MapLayout from './layout/map-layout';
 
 function App() {
