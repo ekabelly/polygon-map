@@ -1,5 +1,5 @@
 import '../assets/style/map-layout.scss';
-import Coordinates from "../components/coordinates";
+import MarkersForm from "../components/markers-form";
 import Map from "../components/map";
 import {useState} from "react";
 
@@ -27,7 +27,7 @@ function MapLayout() {
                 </div>
             </header>
             <div className="content flex">
-                <Coordinates emitCoordinates={setCoordinates} clickLocation={clickLocation}></Coordinates>
+                <MarkersForm emitCoordinates={setCoordinates} clickLocation={clickLocation}></MarkersForm>
                 <Map onMapClick={setClickLocation} coordinates={coordinates}></Map>
             </div>
         </div>

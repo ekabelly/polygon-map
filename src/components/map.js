@@ -1,5 +1,6 @@
 import React from "react";
 import {loadBingApi, Microsoft} from "../util/bing-map.util";
+import colors from '../constants/colors.json';
 
 export default class Map extends React.Component {
     mapElRef = React.createRef();
@@ -33,7 +34,7 @@ export default class Map extends React.Component {
         const location = {...this.map.getCenter(), latitude: lat, longitude: lng};
         let pin;
         if (this.pins.length < 3) {
-            pin = new Microsoft.Maps.Pushpin(location, {color: 'red'});
+            pin = new Microsoft.Maps.Pushpin(location, {color: colors.red});
             this.pins.push(pin)
         } else {
             pin = this.pins.shift();
@@ -77,7 +78,7 @@ export default class Map extends React.Component {
             this.pinToLocation(pin1),
             this.pinToLocation(pin2)
         ], {
-            strokeColor: 'red',
+            strokeColor: colors.strokeRed,
             strokeThickness: 3
         });
         this.polyLines.push(polyline);
@@ -98,8 +99,8 @@ export default class Map extends React.Component {
             this.map.entities.remove(this.polygon)
         }
         this.polygon = new Microsoft.Maps.Polygon(locations, {
-            fillColor: 'rgb(159, 0, 0,.3)',
-            strokeColor: 'rgb(165, 0, 0)',
+            fillColor: colors.polygonFillRed,
+            strokeColor: colors.strokeRed,
             strokeThickness: 3
         });
         return this.polygon;
@@ -110,6 +111,6 @@ export default class Map extends React.Component {
     }
 
     render() {
-        return <div ref={this.mapElRef} className="map"/>;
+        return <div ref={this.mapElRef} className="map pointer"/>;
     }
 }
