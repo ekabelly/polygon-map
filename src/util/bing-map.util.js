@@ -1,6 +1,6 @@
 export let Microsoft;
 
-export function loadBingApi(key) {
+export function loadBingApi(key = 'AqlNTWT4NPxuoXiHQmYK7gSIPJOMH6rS6hAuAdcp4m6NY9-bBzdUYsj7SvUzwtuX') {
     const callbackName = "bingAPIReady";
     let url = `https://www.bing.com/api/maps/mapcontrol?callback=${callbackName}`;
     if (key) {

@@ -10,7 +10,7 @@ export default function MarkersFormTypeSelection({setFormType}) {
     }
 
     return (<div className="flex-column">
-        {Object.keys(FormTypes).map(formType => <label htmlFor={formType} className="pointer">
+        {Object.keys(FormTypes).map(formType => <label key={formType} htmlFor={formType} className="pointer">
             <input
                 id={formType}
                 checked={selectedFormType === formType}

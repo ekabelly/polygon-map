@@ -29,8 +29,8 @@ export default function LocationInput({emitCoordinates}) {
         setLocations([]);
     }
 
-    function renderLocation(location) {
-        return (<div className="pointer" onClick={() => emitLocation(location)}>
+    function renderLocation(location, index) {
+        return (<div key={location.name + index} className="pointer" onClick={() => emitLocation(location)}>
             {location.name}
         </div>)
     }

@@ -3,11 +3,17 @@ import {loadBingApi, Microsoft} from "../util/bing-map.util";
 import colors from '../constants/colors.json';
 
 export default class Map extends React.Component {
-    mapElRef = React.createRef();
-    map;
-    pins = [];
-    polyLines = [];
-    polygon;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            mapElRef: React.createRef(),
+            map: null,
+            pins: [],
+            polyLines: [],
+            polygon: null
+        }
+    }
 
     componentDidMount() {
         this.initMap();
@@ -16,8 +22,11 @@ export default class Map extends React.Component {
     async initMap() {
         await loadBingApi(process.env.REACT_APP_BING_MAPS_KEY)
 
-        this.map = new Microsoft.Maps.Map(this.mapElRef.current);
-        Microsoft.Maps.Events.addHandler(this.map, 'click', e =>
+        this.state.map = this.setState({
+            ...this.state,
+            map: new Microsoft.Maps.Map(this.state.mapElRef.current)
+        });
+        Microsoft.Maps.Events.addHandler(this.state.map, 'click', e =>
             this.props.onMapClick({lat: e.location.latitude, lng: e.location.longitude}));
     }
 
@@ -31,46 +40,58 @@ export default class Map extends React.Component {
 
     setMapCoordinates() {
         const {lat, lng} = this.props.coordinates;
-        const location = {...this.map.getCenter(), latitude: lat, longitude: lng};
+        const location = {...this.state.map.getCenter(), latitude: lat, longitude: lng};
         let pin;
-        if (this.pins.length < 3) {
+        const pins = [...this.state.pins];
+        if (pins.length < 3) {
             pin = new Microsoft.Maps.Pushpin(location, {color: colors.red});
-            this.pins.push(pin)
+            pins.push(pin)
         } else {
-            pin = this.pins.shift();
-            this.map.entities.remove(pin);
+            pin = pins.shift();
+            this.state.map.entities.remove(pin);
             pin.setLocation(location);
-            this.pins.push(pin);
+            pins.push(pin);
         }
-        this.map.entities.push(pin);
-        this.drawPolyLines(this.pins.length - 2);
+        this.setState({...this.state, pins: pins}, () => {
+            console.log('asdsdqw')
+            this.state.map.entities.push(pin);
+            this.drawPolyLines(pins.length - 2);
+        });
     }
 
-    drawPolyLines(startingPinIndex) {
-        this.handlePolyLinesLogic();
+    async drawPolyLines(startingPinIndex) {
+        await this.handlePolyLinesLogic();
         // only draw a line if the startingPinIndex is 0 or bugger
         if (startingPinIndex >= 0) {
-            this.drawPolyLine(this.pins[startingPinIndex], this.pins[startingPinIndex + 1]);
+            this.drawPolyLine(this.state.pins[startingPinIndex], this.state.pins[startingPinIndex + 1]);
             // if startingPinIndex is equal to 1, this means a line was drawn between pin 1 (index) to pins 2.
             // in this case, we want to paint another line between pin 2 to pin 0
             if (startingPinIndex === 1) {
-                this.drawPolyLine(this.pins[2], this.pins[0]);
+                this.drawPolyLine(this.state.pins[2], this.state.pins[0]);
                 this.drawPolyGon();
             }
         }
     }
 
     handlePolyLinesLogic() {
-        // if there are already 3 polyLines,
-        if (this.polyLines.length === 3) {
-            // remove the first polyLine last one,
-            // in order to only keep the line between the second pin and the third pin
-            // since the first pin was removed
-            this.map.entities.remove(this.polyLines[0]);
-            this.map.entities.remove(this.polyLines[2]);
-            // also reset this.polyLines and include only the polyline between the second and third pins
-            this.polyLines = [this.polyLines[1]];
-        }
+        return new Promise(resolve => {
+            // if there are already 3 polyLines,
+            const {polyLines} = this.state;
+            if (polyLines.length === 3) {
+                // remove the first polyLine last one,
+                // in order to only keep the line between the second pin and the third pin
+                // since the first pin was removed
+                this.state.map.entities.remove(polyLines[0]);
+                this.state.map.entities.remove(polyLines[2]);
+                // also reset this.polyLines and include only the polyline between the second and third pins
+                this.setState({...this.state, polyLines: [polyLines[1]]}, () => {
+                    console.log('resolve')
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
     }
 
     drawPolyLine(pin1, pin2) {
@@ -81,29 +102,38 @@ export default class Map extends React.Component {
             strokeColor: colors.strokeRed,
             strokeThickness: 3
         });
-        this.polyLines.push(polyline);
-        this.map.entities.push(polyline);
+        const polyLines = [...this.state.polyLines];
+        polyLines.push(polyline);
+        this.setState({
+            ...this.state,
+            polyLines
+        });
+        this.state.map.entities.push(polyline);
     }
 
     drawPolyGon() {
         const polyGon = this.createPolyGon([
-            ...this.pins.map(this.pinToLocation),
-            this.pinToLocation(this.pins[0])
+            ...this.state.pins.map(this.pinToLocation),
+            this.pinToLocation(this.state.pins[0])
         ]);
-        this.map.entities.push(polyGon);
+        this.state.map.entities.push(polyGon);
     }
 
     createPolyGon(locations) {
         // reset polygon if already exists
-        if (this.polygon) {
-            this.map.entities.remove(this.polygon)
+        if (this.state.polygon) {
+            this.state.map.entities.remove(this.state.polygon);
         }
-        this.polygon = new Microsoft.Maps.Polygon(locations, {
+        const polygon = new Microsoft.Maps.Polygon(locations, {
             fillColor: colors.polygonFillRed,
             strokeColor: colors.strokeRed,
             strokeThickness: 3
         });
-        return this.polygon;
+        this.setState({
+            ...this.state,
+            polygon
+        });
+        return polygon;
     }
 
     pinToLocation(pin) {
@@ -111,6 +141,6 @@ export default class Map extends React.Component {
     }
 
     render() {
-        return <div ref={this.mapElRef} className="map pointer"/>;
+        return <div ref={this.state.mapElRef} className="map pointer"/>;
     }
 }
