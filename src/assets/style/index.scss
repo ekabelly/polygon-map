@@ -9,10 +9,26 @@
   flex-direction: column;
 }
 
+.space-between {
+  justify-content: space-between;
+}
+
+.pointer {
+  cursor: pointer;
+
+  input {
+    cursor: pointer;
+  }
+}
+
 /* Chrome, Safari, Edge, Opera */
 // hide input number arrows
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  margin: 0;
+}
+
+h1 {
   margin: 0;
 }
